@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoices | Smart Invoice Generator</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+  <div class="sidebar-backdrop"></div>
+  <div class="app-wrapper">
+    <aside class="app-sidebar">
+      <a href="/dashboard" class="sidebar-brand">
+        <div class="sidebar-brand-left">
+          <div class="sidebar-brand-icon">
+            <i class="bi bi-receipt-cutoff"></i>
+          </div>
+          <span class="sidebar-brand-title">Smart Invoice</span>
+        </div>
+      </a>
+      <nav class="sidebar-nav">
+        <a href="/dashboard" class="sidebar-link" data-page="dashboard">
+          <i class="bi bi-grid-1x2"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="/create-invoice" class="sidebar-link" data-page="create-invoice">
+          <i class="bi bi-file-earmark-plus"></i>
+          <span>Create Invoice</span>
+        </a>
+        <a href="/invoices" class="sidebar-link active" data-page="invoices">
+          <i class="bi bi-receipt"></i>
+          <span>Invoices</span>
+        </a>
+        <a href="/customers" class="sidebar-link" data-page="customers">
+          <i class="bi bi-people"></i>
+          <span>Customers</span>
+        </a>
+        <a href="/products" class="sidebar-link" data-page="products">
+          <i class="bi bi-box-seam"></i>
+          <span>Products & Stock</span>
+        </a>
+        <a href="/reports" class="sidebar-link" data-page="reports">
+          <i class="bi bi-bar-chart-line"></i>
+          <span>Reports & GST</span>
+        </a>
+        <a href="/settings" class="sidebar-link" data-page="settings">
+          <i class="bi bi-gear"></i>
+          <span>Business Settings</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; font-size: 14px;">
+            RS
+          </div>
+          <div class="overflow-hidden">
+            <div class="fw-semibold text-truncate" style="font-size: 0.88rem;">Rajesh Sharma</div>
+            <div class="text-muted text-truncate" style="font-size: 0.75rem;">Shop Admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="app-main">
+      <header class="app-topbar">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-outline-slate d-lg-none p-2" id="sidebarToggleBtn">
+            <i class="bi bi-list fs-5"></i>
+          </button>
+          <div class="topbar-search-wrapper">
+            <i class="bi bi-search"></i>
+            <input type="text" class="topbar-search-input" id="searchInput" placeholder="Search by customer, phone, invoice #...">
+          </div>
+        </div>
+        <div>
+          <a href="/create-invoice" class="btn btn-primary-blue shadow-sm">
+            <i class="bi bi-plus-lg"></i>
+            <span>Create Invoice</span>
+          </a>
+        </div>
+      </header>
+
+      <main class="app-content">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+          <div>
+            <h2 class="h4 fw-bold mb-1">Invoice Management</h2>
+            <p class="text-muted mb-0 small">Filter, preview, and download PDF copies of all customer bills.</p>
+          </div>
+        </div>
+
+        <!-- Filter Panel -->
+        <div class="filter-panel mb-4">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+            <div class="filter-tabs-segmented" id="statusFilterTabs">
+              <button class="filter-tab-btn active" data-status="">All</button>
+              <button class="filter-tab-btn" data-status="Paid">Paid</button>
+              <button class="filter-tab-btn" data-status="Partially Paid">Partial</button>
+              <button class="filter-tab-btn" data-status="Unpaid">Unpaid</button>
+              <button class="filter-tab-btn" data-status="Draft">Draft</button>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <input type="date" class="form-control form-control-sm" id="dateStart" title="Start Date">
+              <span class="text-muted small">to</span>
+              <input type="date" class="form-control form-control-sm" id="dateEnd" title="End Date">
+              <button class="btn btn-sm btn-outline-slate" id="btnClearDates">Reset</button>
+            </div>
+          </div>
+
+          <!-- Summary Strip -->
+          <div class="filtered-summary-strip">
+            <div class="filtered-summary-metrics">
+              <div>Invoices: <strong id="summaryCount">0</strong></div>
+              <div>Total Value: <strong class="text-primary font-mono-num" id="summaryTotal">₹ 0.00</strong></div>
+              <div>Collected: <strong class="text-success font-mono-num" id="summaryPaid">₹ 0.00</strong></div>
+              <div>Balance Due: <strong class="text-danger font-mono-num" id="summaryDue">₹ 0.00</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Invoices List Table -->
+        <div class="surface-card p-3 p-md-4">
+          <div class="table-responsive">
+            <table class="table table-clean align-middle">
+              <thead>
+                <tr>
+                  <th>Invoice #</th>
+                  <th>Customer</th>
+                  <th>Date</th>
+                  <th>Due Date</th>
+                  <th>Total</th>
+                  <th>Paid</th>
+                  <th>Balance Due</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="invoicesTableBody">
+                <tr>
+                  <td colspan="9" class="text-center py-4 text-muted">
+                    <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                    Loading invoice records...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Invoice View Details Modal -->
+  <div class="modal fade" id="invoiceDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="detailModalTitle">Invoice Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="detailModalBody">
+          <!-- Populated dynamically -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-slate" data-bs-dismiss="modal">Close</button>
+          <a href="#" target="_blank" class="btn btn-primary-blue" id="detailPdfBtn">
+            <i class="bi bi-file-earmark-pdf"></i> Download PDF
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module">
+    import { api, formatCurrency, formatDate, initLayout, showToast } from '/js/app.js';
+
+    let currentStatus = '';
+    let invoicesData = [];
+
+    const loadInvoices = async () => {
+      await initLayout('invoices');
+
+      const search = document.getElementById('searchInput').value.trim();
+      const startDate = document.getElementById('dateStart').value;
+      const endDate = document.getElementById('dateEnd').value;
+
+      const queryParams = new URLSearchParams();
+      if (currentStatus) queryParams.set('status', currentStatus);
+      if (search) queryParams.set('search', search);
+      if (startDate) queryParams.set('startDate', startDate);
+      if (endDate) queryParams.set('endDate', endDate);
+
+      try {
+        const res = await api(`/invoices?${queryParams.toString()}`);
+        if (!res.success) throw new Error('Failed to load invoices');
+
+        invoicesData = res.data || [];
+
+        // Update Summary
+        if (res.summary) {
+          document.getElementById('summaryCount').textContent = res.summary.filteredCount || 0;
+          document.getElementById('summaryTotal').textContent = formatCurrency(res.summary.totalAmount);
+          document.getElementById('summaryPaid').textContent = formatCurrency(res.summary.paidAmount);
+          document.getElementById('summaryDue').textContent = formatCurrency(res.summary.balanceDue);
+        }
+
+        renderTable(invoicesData);
+      } catch (err) {
+        showToast('Error loading invoices: ' + err.message, 'danger');
+      }
+    };
+
+    const renderTable = (list) => {
+      const tbody = document.getElementById('invoicesTableBody');
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">No invoices matching the current filter.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(inv => {
+        let badge = '';
+        if (inv.status === 'Paid') {
+          badge = '<span class="status-label status-paid"><i class="bi bi-check-circle-fill"></i> Paid</span>';
+        } else if (inv.status === 'Partially Paid') {
+          badge = '<span class="status-label status-partial"><i class="bi bi-dash-circle-fill"></i> Partial</span>';
+        } else if (inv.status === 'Draft') {
+          badge = '<span class="status-label status-draft"><i class="bi bi-pencil-square"></i> Draft</span>';
+        } else {
+          badge = '<span class="status-label status-unpaid"><i class="bi bi-exclamation-circle-fill"></i> Unpaid</span>';
+        }
+
+        return `
+          <tr>
+            <td class="fw-bold font-mono-num text-primary">${inv.invoiceNumber}</td>
+            <td>
+              <div class="fw-semibold">${inv.customer?.name || 'Walk-in'}</div>
+              <small class="text-muted">${inv.customer?.phone || '-'}</small>
+            </td>
+            <td>${formatDate(inv.invoiceDate)}</td>
+            <td>${formatDate(inv.dueDate)}</td>
+            <td class="fw-bold tabular-nums">${formatCurrency(inv.grandTotal)}</td>
+            <td class="text-success tabular-nums">${formatCurrency(inv.amountPaid)}</td>
+            <td class="tabular-nums ${inv.balanceDue > 0 ? 'text-danger fw-semibold' : 'text-muted'}">${formatCurrency(inv.balanceDue)}</td>
+            <td>${badge}</td>
+            <td class="text-end">
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-slate btn-view-inv" data-id="${inv._id}" title="View Details">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <a href="/api/invoices/${inv._id}/pdf" target="_blank" class="btn btn-outline-slate text-danger" title="Download PDF">
+                  <i class="bi bi-file-earmark-pdf"></i>
+                </a>
+                <button class="btn btn-outline-slate text-danger btn-del-inv" data-id="${inv._id}" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Bind View Details
+      document.querySelectorAll('.btn-view-inv').forEach(btn => {
+        btn.addEventListener('click', () => viewInvoiceModal(btn.dataset.id));
+      });
+
+      // Bind Delete
+      document.querySelectorAll('.btn-del-inv').forEach(btn => {
+        btn.addEventListener('click', () => deleteInvoice(btn.dataset.id));
+      });
+    };
+
+    const viewInvoiceModal = (id) => {
+      const inv = invoicesData.find(i => i._id === id);
+      if (!inv) return;
+
+      document.getElementById('detailModalTitle').textContent = `Invoice #${inv.invoiceNumber}`;
+      document.getElementById('detailPdfBtn').href = `/api/invoices/${inv._id}/pdf`;
+
+      const body = document.getElementById('detailModalBody');
+      body.innerHTML = `
+        <div class="row mb-3">
+          <div class="col-6">
+            <h6 class="fw-bold text-muted small text-uppercase">Billed To:</h6>
+            <div class="fw-bold fs-6">${inv.customer?.name || 'Walk-in'}</div>
+            <div class="text-muted small">${inv.customer?.phone || ''}</div>
+            <div class="text-muted small">${inv.customer?.address || ''}</div>
+            ${inv.customer?.gstin ? `<div class="text-primary small fw-semibold">GSTIN: ${inv.customer.gstin}</div>` : ''}
+          </div>
+          <div class="col-6 text-end">
+            <h6 class="fw-bold text-muted small text-uppercase">Invoice Meta:</h6>
+            <div><strong>Date:</strong> ${formatDate(inv.invoiceDate)}</div>
+            <div><strong>Due:</strong> ${formatDate(inv.dueDate)}</div>
+            <div><strong>Payment Method:</strong> ${inv.paymentMethod || 'UPI'}</div>
+            <div><strong>Status:</strong> <span class="badge bg-secondary">${inv.status}</span></div>
+          </div>
+        </div>
+
+        <div class="table-responsive mb-3">
+          <table class="table table-sm table-bordered">
+            <thead class="table-light small">
+              <tr>
+                <th>Item</th>
+                <th class="text-center">Qty</th>
+                <th class="text-end">Price</th>
+                <th class="text-center">GST</th>
+                <th class="text-end">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(inv.items || []).map(item => `
+                <tr>
+                  <td>${item.name}</td>
+                  <td class="text-center">${item.quantity}</td>
+                  <td class="text-end">${formatCurrency(item.price)}</td>
+                  <td class="text-center">${item.gstRate || 0}%</td>
+                  <td class="text-end fw-semibold">${formatCurrency(item.lineTotal || (item.price * item.quantity))}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="row justify-content-end">
+          <div class="col-6">
+            <div class="d-flex justify-content-between py-1 small">
+              <span>Subtotal:</span>
+              <span class="fw-semibold">${formatCurrency(inv.subtotal)}</span>
+            </div>
+            <div class="d-flex justify-content-between py-1 small">
+              <span>Tax (GST):</span>
+              <span class="fw-semibold">${formatCurrency(inv.taxAmount)}</span>
+            </div>
+            <div class="d-flex justify-content-between py-2 border-top fs-6 fw-bold">
+              <span>Grand Total:</span>
+              <span class="text-primary">${formatCurrency(inv.grandTotal)}</span>
+            </div>
+            <div class="d-flex justify-content-between py-1 small text-success">
+              <span>Amount Paid:</span>
+              <span class="fw-bold">${formatCurrency(inv.amountPaid)}</span>
+            </div>
+            <div class="d-flex justify-content-between py-1 small text-danger">
+              <span>Balance Due:</span>
+              <span class="fw-bold">${formatCurrency(inv.balanceDue)}</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      new bootstrap.Modal(document.getElementById('invoiceDetailModal')).show();
+    };
+
+    const deleteInvoice = async (id) => {
+      if (!confirm('Are you sure you want to delete this invoice?')) return;
+      try {
+        const res = await api(`/invoices/${id}`, { method: 'DELETE' });
+        if (res.success) {
+          showToast('Invoice deleted');
+          loadInvoices();
+        }
+      } catch (err) {
+        showToast('Delete failed: ' + err.message, 'danger');
+      }
+    };
+
+    // Filter Tab Buttons
+    document.querySelectorAll('.filter-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentStatus = btn.dataset.status;
+        loadInvoices();
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', () => {
+      clearTimeout(window.searchTimer);
+      window.searchTimer = setTimeout(loadInvoices, 350);
+    });
+
+    document.getElementById('dateStart').addEventListener('change', loadInvoices);
+    document.getElementById('dateEnd').addEventListener('change', loadInvoices);
+    document.getElementById('btnClearDates').addEventListener('click', () => {
+      document.getElementById('dateStart').value = '';
+      document.getElementById('dateEnd').value = '';
+      loadInvoices();
+    });
+
+    window.addEventListener('DOMContentLoaded', loadInvoices);
+  </script>
+</body>
+</html>

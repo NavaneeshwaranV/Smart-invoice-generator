@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Invoice | Smart Invoice Generator</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- App Stylesheets -->
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+  <div class="sidebar-backdrop"></div>
+  <div class="app-wrapper">
+    <!-- Sidebar -->
+    <aside class="app-sidebar">
+      <a href="/dashboard" class="sidebar-brand">
+        <div class="sidebar-brand-left">
+          <div class="sidebar-brand-icon">
+            <i class="bi bi-receipt-cutoff"></i>
+          </div>
+          <span class="sidebar-brand-title">Smart Invoice</span>
+        </div>
+      </a>
+      <nav class="sidebar-nav">
+        <a href="/dashboard" class="sidebar-link" data-page="dashboard">
+          <i class="bi bi-grid-1x2"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="/create-invoice" class="sidebar-link active" data-page="create-invoice">
+          <i class="bi bi-file-earmark-plus"></i>
+          <span>Create Invoice</span>
+        </a>
+        <a href="/invoices" class="sidebar-link" data-page="invoices">
+          <i class="bi bi-receipt"></i>
+          <span>Invoices</span>
+        </a>
+        <a href="/customers" class="sidebar-link" data-page="customers">
+          <i class="bi bi-people"></i>
+          <span>Customers</span>
+        </a>
+        <a href="/products" class="sidebar-link" data-page="products">
+          <i class="bi bi-box-seam"></i>
+          <span>Products & Stock</span>
+        </a>
+        <a href="/reports" class="sidebar-link" data-page="reports">
+          <i class="bi bi-bar-chart-line"></i>
+          <span>Reports & GST</span>
+        </a>
+        <a href="/settings" class="sidebar-link" data-page="settings">
+          <i class="bi bi-gear"></i>
+          <span>Business Settings</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; font-size: 14px;">
+            RS
+          </div>
+          <div class="overflow-hidden">
+            <div class="fw-semibold text-truncate" style="font-size: 0.88rem;">Rajesh Sharma</div>
+            <div class="text-muted text-truncate" style="font-size: 0.75rem;">Shop Admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="app-main">
+      <header class="app-topbar">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-outline-slate d-lg-none p-2" id="sidebarToggleBtn">
+            <i class="bi bi-list fs-5"></i>
+          </button>
+          <div>
+            <h1 class="h5 mb-0 fw-bold text-dark" id="topbarBusinessName">Sharma Electronics & Appliances</h1>
+            <small class="text-muted" id="topbarGstin">GSTIN: 29ABCDE1234F1Z5</small>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <a href="/invoices" class="btn btn-outline-slate">
+            <i class="bi bi-arrow-left"></i>
+            <span>Cancel</span>
+          </a>
+        </div>
+      </header>
+
+      <main class="app-content">
+        <form id="invoiceForm">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+              <h2 class="h4 fw-bold mb-1">New Tax Invoice</h2>
+              <p class="text-muted mb-0 small">Create and generate GST-compliant digital and printable invoices.</p>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-outline-slate" id="btnSaveDraft">
+                <i class="bi bi-save"></i> Save Draft
+              </button>
+              <button type="submit" class="btn btn-primary-blue shadow-sm" id="btnSaveAndDownload">
+                <i class="bi bi-file-earmark-pdf"></i> Generate & Download PDF
+              </button>
+            </div>
+          </div>
+
+          <!-- Customer and Invoice Meta Section -->
+          <div class="row g-4 mb-4">
+            <!-- Customer Card -->
+            <div class="col-12 col-lg-6">
+              <div class="surface-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h3 class="h6 fw-bold mb-0 text-uppercase tracking-wider text-muted">Customer Details</h3>
+                  <button type="button" class="btn btn-sm btn-outline-slate py-1" data-bs-toggle="modal" data-bs-target="#newCustomerModal">
+                    <i class="bi bi-person-plus"></i> New Customer
+                  </button>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label" for="customerSelect">Select Customer <span class="text-danger">*</span></label>
+                  <select class="form-select" id="customerSelect" required>
+                    <option value="">-- Choose Existing Customer --</option>
+                  </select>
+                </div>
+
+                <div id="customerDetailsBox" class="p-3 bg-light rounded-3 small border" style="display: none;">
+                  <div class="fw-bold fs-6 text-dark" id="dispCustName">-</div>
+                  <div class="text-muted" id="dispCustPhone">-</div>
+                  <div class="text-muted" id="dispCustEmail">-</div>
+                  <div class="text-secondary mt-1" id="dispCustAddress">-</div>
+                  <div class="text-primary fw-semibold mt-1" id="dispCustGstin"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Invoice Metadata Card -->
+            <div class="col-12 col-lg-6">
+              <div class="surface-card p-4 h-100">
+                <h3 class="h6 fw-bold mb-3 text-uppercase tracking-wider text-muted">Invoice Information</h3>
+                
+                <div class="row g-3">
+                  <div class="col-12 col-sm-6">
+                    <label class="form-label" for="invoiceNumber">Invoice Number <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control font-mono-num fw-bold text-primary" id="invoiceNumber" required>
+                  </div>
+                  <div class="col-12 col-sm-6">
+                    <label class="form-label" for="paymentStatus">Payment Status</label>
+                    <select class="form-select" id="paymentStatus">
+                      <option value="Paid">Paid</option>
+                      <option value="Partially Paid">Partially Paid</option>
+                      <option value="Unpaid" selected>Unpaid</option>
+                      <option value="Draft">Draft</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-sm-6">
+                    <label class="form-label" for="invoiceDate">Invoice Date</label>
+                    <input type="date" class="form-control" id="invoiceDate" required>
+                  </div>
+                  <div class="col-12 col-sm-6">
+                    <label class="form-label" for="dueDate">Due Date</label>
+                    <input type="date" class="form-control" id="dueDate">
+                  </div>
+                  <div class="col-12 col-sm-6">
+                    <label class="form-label" for="paymentMethod">Payment Method</label>
+                    <select class="form-select" id="paymentMethod">
+                      <option value="UPI" selected>UPI / QR Code</option>
+                      <option value="Cash">Cash</option>
+                      <option value="Bank Transfer">Bank Transfer / NEFT</option>
+                      <option value="Card">Credit / Debit Card</option>
+                      <option value="Cheque">Cheque</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-sm-6 d-flex align-items-end">
+                    <div class="form-check form-switch mb-2">
+                      <input class="form-check-input" type="checkbox" role="switch" id="gstEnabled" checked>
+                      <label class="form-check-label fw-semibold" for="gstEnabled">Apply GST Calculation</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Line Items Section -->
+          <div class="surface-card p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h3 class="h6 fw-bold mb-0 text-uppercase tracking-wider text-muted">Itemized Products & Services</h3>
+              <button type="button" class="btn btn-sm btn-primary-blue py-1" id="btnAddItem">
+                <i class="bi bi-plus"></i> Add Item Row
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-bordered align-middle mb-0" id="itemsTable">
+                <thead class="table-light text-muted small text-uppercase">
+                  <tr>
+                    <th style="min-width: 250px;">Item / Description <span class="text-danger">*</span></th>
+                    <th style="width: 100px;">Qty</th>
+                    <th style="width: 130px;">Price (₹)</th>
+                    <th style="width: 110px;">GST (%)</th>
+                    <th style="width: 110px;">Discount (₹)</th>
+                    <th style="width: 140px;" class="text-end">Total (₹)</th>
+                    <th style="width: 50px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="itemsBody">
+                  <!-- Dynamic Item Rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Summary & Totals Calculation Section -->
+          <div class="row g-4 mb-4">
+            <div class="col-12 col-lg-7">
+              <div class="surface-card p-4 h-100">
+                <div class="mb-3">
+                  <label class="form-label" for="notes">Notes / Special Instructions</label>
+                  <textarea class="form-control" id="notes" rows="2" placeholder="e.g. Warranty details, delivery notes..."></textarea>
+                </div>
+                <div>
+                  <label class="form-label" for="termsAndConditions">Terms & Conditions</label>
+                  <textarea class="form-control" id="termsAndConditions" rows="3"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-5">
+              <div class="surface-card p-4 h-100 bg-light">
+                <h3 class="h6 fw-bold mb-3 text-uppercase tracking-wider text-muted">Invoice Summary</h3>
+
+                <div class="d-flex justify-content-between py-1 text-secondary">
+                  <span>Subtotal:</span>
+                  <span class="fw-semibold font-mono-num" id="calcSubtotal">₹ 0.00</span>
+                </div>
+                <div class="d-flex justify-content-between py-1 text-secondary">
+                  <span>Item Discounts:</span>
+                  <span class="fw-semibold font-mono-num text-danger" id="calcDiscount">- ₹ 0.00</span>
+                </div>
+                <div class="d-flex justify-content-between py-1 text-secondary">
+                  <span>Total Tax (GST):</span>
+                  <span class="fw-semibold font-mono-num text-primary" id="calcTax">+ ₹ 0.00</span>
+                </div>
+                
+                <div class="row g-2 my-2 align-items-center">
+                  <div class="col-6">
+                    <label class="form-label small mb-0" for="additionalCharges">Shipping / Extra (₹):</label>
+                  </div>
+                  <div class="col-6">
+                    <input type="number" step="0.01" class="form-control form-control-sm text-end" id="additionalCharges" value="0">
+                  </div>
+                </div>
+
+                <div class="row g-2 my-2 align-items-center">
+                  <div class="col-6">
+                    <label class="form-label small mb-0" for="invoiceDiscount">Special Bill Discount (₹):</label>
+                  </div>
+                  <div class="col-6">
+                    <input type="number" step="0.01" class="form-control form-control-sm text-end" id="invoiceDiscount" value="0">
+                  </div>
+                </div>
+
+                <hr class="my-3">
+
+                <div class="d-flex justify-content-between py-2 fs-5 fw-bold text-dark">
+                  <span>Grand Total:</span>
+                  <span class="text-primary font-mono-num" id="calcGrandTotal">₹ 0.00</span>
+                </div>
+
+                <div class="row g-2 my-2 align-items-center">
+                  <div class="col-6">
+                    <label class="form-label small fw-bold text-success mb-0" for="amountPaid">Amount Paid (₹):</label>
+                  </div>
+                  <div class="col-6">
+                    <input type="number" step="0.01" class="form-control text-end fw-bold text-success" id="amountPaid" value="0">
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-between py-2 fs-6 fw-bold border-top mt-2">
+                  <span>Balance Due:</span>
+                  <span class="text-danger font-mono-num" id="calcBalanceDue">₹ 0.00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+
+  <!-- Inline New Customer Modal -->
+  <div class="modal fade" id="newCustomerModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="newCustomerForm">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Add New Customer</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Full Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="mCustName" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Phone Number</label>
+              <input type="text" class="form-control" id="mCustPhone" placeholder="+91 98765 43210">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-control" id="mCustEmail" placeholder="client@example.com">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Shop / Billing Address</label>
+              <textarea class="form-control" id="mCustAddress" rows="2"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">GSTIN (Optional)</label>
+              <input type="text" class="form-control" id="mCustGstin" placeholder="29XXXXX1234X1ZX">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-slate" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary-blue">Save & Select</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module">
+    import { api, formatCurrency, initLayout, showToast } from '/js/app.js';
+
+    let availableCustomers = [];
+    let availableProducts = [];
+    let selectedCustomer = null;
+
+    // Prefill default dates
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('invoiceDate').value = today;
+    const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+    document.getElementById('dueDate').value = nextWeek;
+
+    // Load Initial Data
+    const initPage = async () => {
+      await initLayout('create-invoice');
+
+      try {
+        // Fetch Next Invoice Number
+        const numRes = await api('/invoices/next-number');
+        if (numRes.success && numRes.invoiceNumber) {
+          document.getElementById('invoiceNumber').value = numRes.invoiceNumber;
+        }
+
+        // Fetch Customers
+        const custRes = await api('/customers');
+        if (custRes.success && custRes.data) {
+          availableCustomers = custRes.data;
+          renderCustomerOptions();
+        }
+
+        // Fetch Products Catalog
+        const prodRes = await api('/products');
+        if (prodRes.success && prodRes.data) {
+          availableProducts = prodRes.data;
+        }
+
+        // Fetch Terms & Conditions from business profile
+        const bizRes = await api('/business');
+        if (bizRes.success && bizRes.data) {
+          document.getElementById('termsAndConditions').value = bizRes.data.termsAndConditions || '';
+        }
+
+        // Add 1 default item row
+        addItemRow();
+      } catch (err) {
+        showToast('Initialization error: ' + err.message, 'danger');
+      }
+    };
+
+    const renderCustomerOptions = (selectId = '') => {
+      const select = document.getElementById('customerSelect');
+      select.innerHTML = '<option value="">-- Choose Existing Customer --</option>' +
+        availableCustomers.map(c => `<option value="${c._id}">${c.name} (${c.phone || c.email || 'No contact'})</option>`).join('');
+
+      if (selectId) select.value = selectId;
+    };
+
+    // Customer Selection Change Handler
+    document.getElementById('customerSelect').addEventListener('change', (e) => {
+      const id = e.target.value;
+      selectedCustomer = availableCustomers.find(c => c._id === id);
+      const box = document.getElementById('customerDetailsBox');
+
+      if (selectedCustomer) {
+        document.getElementById('dispCustName').textContent = selectedCustomer.name;
+        document.getElementById('dispCustPhone').textContent = selectedCustomer.phone ? '📞 ' + selectedCustomer.phone : '';
+        document.getElementById('dispCustEmail').textContent = selectedCustomer.email ? '✉️ ' + selectedCustomer.email : '';
+        document.getElementById('dispCustAddress').textContent = selectedCustomer.address || 'No address provided';
+        document.getElementById('dispCustGstin').textContent = selectedCustomer.gstin ? 'GSTIN: ' + selectedCustomer.gstin : '';
+        box.style.display = 'block';
+      } else {
+        box.style.display = 'none';
+      }
+    });
+
+    // Add New Customer Modal Handler
+    document.getElementById('newCustomerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('mCustName').value.trim(),
+        phone: document.getElementById('mCustPhone').value.trim(),
+        email: document.getElementById('mCustEmail').value.trim(),
+        address: document.getElementById('mCustAddress').value.trim(),
+        gstin: document.getElementById('mCustGstin').value.trim(),
+      };
+
+      try {
+        const res = await api('/customers', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+
+        if (res.success && res.data) {
+          availableCustomers.unshift(res.data);
+          renderCustomerOptions(res.data._id);
+          selectedCustomer = res.data;
+          document.getElementById('customerSelect').dispatchEvent(new Event('change'));
+          bootstrap.Modal.getInstance(document.getElementById('newCustomerModal')).hide();
+          document.getElementById('newCustomerForm').reset();
+          showToast('Customer saved successfully!');
+        }
+      } catch (err) {
+        showToast('Failed to create customer: ' + err.message, 'danger');
+      }
+    });
+
+    // Add Item Row to Table
+    let rowCounter = 0;
+    const addItemRow = (prod = null) => {
+      rowCounter++;
+      const rowId = `item_row_${rowCounter}`;
+      const tbody = document.getElementById('itemsBody');
+
+      const tr = document.createElement('tr');
+      tr.id = rowId;
+      tr.innerHTML = `
+        <td>
+          <input list="prod_datalist" type="text" class="form-control form-control-sm item-name" placeholder="Item name or service description" required value="${prod?.name || ''}">
+          <datalist id="prod_datalist">
+            ${availableProducts.map(p => `<option value="${p.name}" data-price="${p.price}" data-gst="${p.gstRate || 18}" data-id="${p._id}"></option>`).join('')}
+          </datalist>
+        </td>
+        <td>
+          <input type="number" step="1" min="1" class="form-control form-control-sm item-qty text-center" value="${prod?.quantity || 1}">
+        </td>
+        <td>
+          <input type="number" step="0.01" min="0" class="form-control form-control-sm item-price text-end" value="${prod?.price || 0}">
+        </td>
+        <td>
+          <select class="form-select form-select-sm item-gst">
+            <option value="0" ${prod?.gstRate === 0 ? 'selected' : ''}>0%</option>
+            <option value="5" ${prod?.gstRate === 5 ? 'selected' : ''}>5%</option>
+            <option value="12" ${prod?.gstRate === 12 ? 'selected' : ''}>12%</option>
+            <option value="18" ${!prod || prod?.gstRate === 18 ? 'selected' : ''}>18%</option>
+            <option value="28" ${prod?.gstRate === 28 ? 'selected' : ''}>28%</option>
+          </select>
+        </td>
+        <td>
+          <input type="number" step="0.01" min="0" class="form-control form-control-sm item-disc text-end" value="0">
+        </td>
+        <td class="text-end fw-bold font-mono-num item-row-total">
+          ₹ 0.00
+        </td>
+        <td class="text-center">
+          <button type="button" class="btn btn-sm btn-outline-danger border-0 p-1 btn-del-row" title="Remove">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+
+      // Autocomplete product selection
+      const nameInput = tr.querySelector('.item-name');
+      nameInput.addEventListener('change', (e) => {
+        const val = e.target.value;
+        const matched = availableProducts.find(p => p.name.toLowerCase() === val.toLowerCase());
+        if (matched) {
+          tr.querySelector('.item-price').value = matched.price;
+          if (matched.gstRate !== undefined) {
+            tr.querySelector('.item-gst').value = matched.gstRate;
+          }
+        }
+        recalculate();
+      });
+
+      // Recalculate on any input change in this row
+      tr.querySelectorAll('input, select').forEach(inp => {
+        inp.addEventListener('input', recalculate);
+      });
+
+      // Remove row
+      tr.querySelector('.btn-del-row').addEventListener('click', () => {
+        if (tbody.querySelectorAll('tr').length > 1) {
+          tr.remove();
+          recalculate();
+        } else {
+          showToast('Invoice must have at least one item line', 'danger');
+        }
+      });
+
+      recalculate();
+    };
+
+    document.getElementById('btnAddItem').addEventListener('click', () => addItemRow());
+
+    // Live Math & GST Calculation Engine
+    const recalculate = () => {
+      const isGst = document.getElementById('gstEnabled').checked;
+      let subtotal = 0;
+      let totalDiscount = 0;
+      let totalTax = 0;
+
+      const rows = document.querySelectorAll('#itemsBody tr');
+      rows.forEach(tr => {
+        const qty = parseFloat(tr.querySelector('.item-qty').value) || 0;
+        const price = parseFloat(tr.querySelector('.item-price').value) || 0;
+        const gstRate = isGst ? (parseFloat(tr.querySelector('.item-gst').value) || 0) : 0;
+        const disc = parseFloat(tr.querySelector('.item-disc').value) || 0;
+
+        const raw = qty * price;
+        const taxable = Math.max(0, raw - disc);
+        const tax = (taxable * gstRate) / 100;
+        const lineTotal = taxable + tax;
+
+        subtotal += raw;
+        totalDiscount += disc;
+        totalTax += tax;
+
+        tr.querySelector('.item-row-total').textContent = formatCurrency(lineTotal);
+      });
+
+      const addCharges = parseFloat(document.getElementById('additionalCharges').value) || 0;
+      const invDiscount = parseFloat(document.getElementById('invoiceDiscount').value) || 0;
+
+      const grandTotal = Math.max(0, subtotal - totalDiscount - invDiscount + totalTax + addCharges);
+      const paid = parseFloat(document.getElementById('amountPaid').value) || 0;
+      const balanceDue = Math.max(0, grandTotal - paid);
+
+      document.getElementById('calcSubtotal').textContent = formatCurrency(subtotal);
+      document.getElementById('calcDiscount').textContent = `- ${formatCurrency(totalDiscount + invDiscount)}`;
+      document.getElementById('calcTax').textContent = `+ ${formatCurrency(totalTax)}`;
+      document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
+      document.getElementById('calcBalanceDue').textContent = formatCurrency(balanceDue);
+
+      // Auto update payment status if user changes amount paid
+      const statusSelect = document.getElementById('paymentStatus');
+      if (paid >= grandTotal && grandTotal > 0) {
+        statusSelect.value = 'Paid';
+      } else if (paid > 0 && paid < grandTotal) {
+        statusSelect.value = 'Partially Paid';
+      }
+    };
+
+    // Bind inputs to recalculate
+    ['additionalCharges', 'invoiceDiscount', 'amountPaid', 'gstEnabled'].forEach(id => {
+      document.getElementById(id).addEventListener('input', recalculate);
+    });
+
+    // Form Submission & Invoice Creation
+    const submitInvoice = async (asDraft = false, downloadPdf = false) => {
+      if (!selectedCustomer) {
+        showToast('Please select a customer for this invoice', 'danger');
+        document.getElementById('customerSelect').focus();
+        return;
+      }
+
+      const rows = document.querySelectorAll('#itemsBody tr');
+      const items = [];
+      let valid = true;
+
+      rows.forEach(tr => {
+        const name = tr.querySelector('.item-name').value.trim();
+        const quantity = parseFloat(tr.querySelector('.item-qty').value) || 0;
+        const price = parseFloat(tr.querySelector('.item-price').value) || 0;
+        const gstRate = document.getElementById('gstEnabled').checked ? (parseFloat(tr.querySelector('.item-gst').value) || 0) : 0;
+        const discount = parseFloat(tr.querySelector('.item-disc').value) || 0;
+
+        if (!name || quantity <= 0) {
+          valid = false;
+        }
+
+        items.push({
+          name,
+          quantity,
+          unitPrice: price,
+          price,
+          taxRate: gstRate,
+          gstRate,
+          discount,
+        });
+      });
+
+      if (!valid || items.length === 0) {
+        showToast('Please fill in complete item description and quantity', 'danger');
+        return;
+      }
+
+      const payload = {
+        customerId: selectedCustomer._id,
+        customer: selectedCustomer,
+        invoiceNumber: document.getElementById('invoiceNumber').value.trim(),
+        invoiceDate: document.getElementById('invoiceDate').value,
+        dueDate: document.getElementById('dueDate').value,
+        status: asDraft ? 'Draft' : document.getElementById('paymentStatus').value,
+        paymentStatus: asDraft ? 'Draft' : document.getElementById('paymentStatus').value,
+        paymentMethod: document.getElementById('paymentMethod').value,
+        gstEnabled: document.getElementById('gstEnabled').checked,
+        items,
+        invoiceDiscount: parseFloat(document.getElementById('invoiceDiscount').value) || 0,
+        additionalCharges: parseFloat(document.getElementById('additionalCharges').value) || 0,
+        amountPaid: parseFloat(document.getElementById('amountPaid').value) || 0,
+        notes: document.getElementById('notes').value.trim(),
+        termsAndConditions: document.getElementById('termsAndConditions').value.trim(),
+      };
+
+      try {
+        const res = await api('/invoices', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+
+        if (res.success && res.data) {
+          showToast(`Invoice ${res.data.invoiceNumber} created successfully!`);
+          if (downloadPdf) {
+            window.open(`/api/invoices/${res.data._id}/pdf`, '_blank');
+          }
+          setTimeout(() => {
+            window.location.href = '/invoices';
+          }, 1200);
+        }
+      } catch (err) {
+        showToast('Failed to create invoice: ' + err.message, 'danger');
+      }
+    };
+
+    document.getElementById('invoiceForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      submitInvoice(false, true);
+    });
+
+    document.getElementById('btnSaveDraft').addEventListener('click', () => {
+      submitInvoice(true, false);
+    });
+
+    window.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

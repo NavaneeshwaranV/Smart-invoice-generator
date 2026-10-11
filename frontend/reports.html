@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports & GST | Smart Invoice Generator</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+  <div class="sidebar-backdrop"></div>
+  <div class="app-wrapper">
+    <aside class="app-sidebar">
+      <a href="/dashboard" class="sidebar-brand">
+        <div class="sidebar-brand-left">
+          <div class="sidebar-brand-icon"><i class="bi bi-receipt-cutoff"></i></div>
+          <span class="sidebar-brand-title">Smart Invoice</span>
+        </div>
+      </a>
+      <nav class="sidebar-nav">
+        <a href="/dashboard" class="sidebar-link" data-page="dashboard"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></a>
+        <a href="/create-invoice" class="sidebar-link" data-page="create-invoice"><i class="bi bi-file-earmark-plus"></i><span>Create Invoice</span></a>
+        <a href="/invoices" class="sidebar-link" data-page="invoices"><i class="bi bi-receipt"></i><span>Invoices</span></a>
+        <a href="/customers" class="sidebar-link" data-page="customers"><i class="bi bi-people"></i><span>Customers</span></a>
+        <a href="/products" class="sidebar-link" data-page="products"><i class="bi bi-box-seam"></i><span>Products & Stock</span></a>
+        <a href="/reports" class="sidebar-link active" data-page="reports"><i class="bi bi-bar-chart-line"></i><span>Reports & GST</span></a>
+        <a href="/settings" class="sidebar-link" data-page="settings"><i class="bi bi-gear"></i><span>Business Settings</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; font-size: 14px;">RS</div>
+          <div class="overflow-hidden">
+            <div class="fw-semibold text-truncate" style="font-size: 0.88rem;">Rajesh Sharma</div>
+            <div class="text-muted text-truncate" style="font-size: 0.75rem;">Shop Admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="app-main">
+      <header class="app-topbar">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-outline-slate d-lg-none p-2" id="sidebarToggleBtn"><i class="bi bi-list fs-5"></i></button>
+          <div>
+            <h1 class="h5 mb-0 fw-bold text-dark" id="topbarBusinessName">Sharma Electronics & Appliances</h1>
+            <small class="text-muted" id="topbarGstin">GSTIN: 29ABCDE1234F1Z5</small>
+          </div>
+        </div>
+        <div>
+          <button class="btn btn-outline-slate" id="btnExportCsv">
+            <i class="bi bi-filetype-csv text-success"></i>
+            <span>Export CSV</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="app-content">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+          <div>
+            <h2 class="h4 fw-bold mb-1">Financial & GST Reports</h2>
+            <p class="text-muted mb-0 small">Analyze sales figures, tax liabilities, and payment channels.</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <input type="date" class="form-control form-control-sm" id="repStartDate">
+            <span class="text-muted small">to</span>
+            <input type="date" class="form-control form-control-sm" id="repEndDate">
+            <button class="btn btn-sm btn-primary-blue" id="btnApplyDateFilter">Filter</button>
+          </div>
+        </div>
+
+        <!-- KPI Strip -->
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="surface-card p-3">
+              <span class="text-muted small fw-medium">Gross Billed Sales</span>
+              <div class="h4 fw-bold text-dark my-1 font-mono-num" id="rGrossSales">₹ 0.00</div>
+              <small class="text-muted" id="rInvoiceCount">0 Invoices issued</small>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="surface-card p-3">
+              <span class="text-muted small fw-medium">Collected Revenue</span>
+              <div class="h4 fw-bold text-success my-1 font-mono-num" id="rCollected">₹ 0.00</div>
+              <small class="text-success"><i class="bi bi-check-all"></i> Net receipts</small>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="surface-card p-3">
+              <span class="text-muted small fw-medium">Total GST Liability</span>
+              <div class="h4 fw-bold text-primary my-1 font-mono-num" id="rTaxLiability">₹ 0.00</div>
+              <small class="text-primary"><i class="bi bi-bank"></i> CGST + SGST</small>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="surface-card p-3">
+              <span class="text-muted small fw-medium">Outstanding Receivables</span>
+              <div class="h4 fw-bold text-danger my-1 font-mono-num" id="rPendingDues">₹ 0.00</div>
+              <small class="text-danger"><i class="bi bi-hourglass-split"></i> Awaiting collection</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="row g-4 mb-4">
+          <div class="col-12 col-lg-7">
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <h3 class="chart-card-title">Top Product Categories</h3>
+              </div>
+              <div class="chart-canvas-box">
+                <canvas id="categoryChart"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-lg-5">
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <h3 class="chart-card-title">Payment Methods</h3>
+              </div>
+              <div class="chart-canvas-box d-flex align-items-center justify-content-center">
+                <canvas id="paymentsChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <script type="module">
+    import { api, formatCurrency, initLayout, showToast } from '/js/app.js';
+
+    let catChartInstance = null;
+    let payChartInstance = null;
+    let reportData = null;
+
+    const loadReports = async () => {
+      await initLayout('reports');
+      const start = document.getElementById('repStartDate').value;
+      const end = document.getElementById('repEndDate').value;
+
+      const params = new URLSearchParams();
+      if (start) params.set('startDate', start);
+      if (end) params.set('endDate', end);
+
+      try {
+        const res = await api(`/reports?${params.toString()}`);
+        if (!res.success) throw new Error('Failed to load reports');
+        reportData = res.data;
+
+        document.getElementById('rGrossSales').textContent = formatCurrency(reportData.totalRevenue || 0);
+        document.getElementById('rCollected').textContent = formatCurrency(reportData.totalCollected || 0);
+        document.getElementById('rTaxLiability').textContent = formatCurrency(reportData.totalTax || 0);
+        document.getElementById('rPendingDues').textContent = formatCurrency(reportData.totalPending || 0);
+        document.getElementById('rInvoiceCount').textContent = `${reportData.invoicesCount || 0} Invoices issued`;
+
+        renderCharts(reportData);
+      } catch (err) {
+        showToast('Error loading report: ' + err.message, 'danger');
+      }
+    };
+
+    const renderCharts = (data) => {
+      // Category Chart
+      const cats = Object.entries(data.categorySales || {});
+      const cCtx = document.getElementById('categoryChart').getContext('2d');
+      if (catChartInstance) catChartInstance.destroy();
+
+      catChartInstance = new Chart(cCtx, {
+        type: 'bar',
+        data: {
+          labels: cats.length > 0 ? cats.map(([k]) => k) : ['No Data'],
+          datasets: [{
+            label: 'Sales (₹)',
+            data: cats.length > 0 ? cats.map(([, v]) => v) : [0],
+            backgroundColor: '#2563EB',
+            borderRadius: 6,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { callback: (v) => '₹' + v.toLocaleString('en-IN') }
+            }
+          }
+        }
+      });
+
+      // Payments Chart
+      const pays = Object.entries(data.paymentMethodSales || {});
+      const pCtx = document.getElementById('paymentsChart').getContext('2d');
+      if (payChartInstance) payChartInstance.destroy();
+
+      payChartInstance = new Chart(pCtx, {
+        type: 'doughnut',
+        data: {
+          labels: pays.length > 0 ? pays.map(([k]) => k) : ['No Data'],
+          datasets: [{
+            data: pays.length > 0 ? pays.map(([, v]) => v) : [1],
+            backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899'],
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    };
+
+    document.getElementById('btnApplyDateFilter').addEventListener('click', loadReports);
+
+    document.getElementById('btnExportCsv').addEventListener('click', () => {
+      if (!reportData) return;
+      const rows = [
+        ['Metric', 'Value (INR)'],
+        ['Gross Sales', reportData.totalRevenue || 0],
+        ['Collected Revenue', reportData.totalCollected || 0],
+        ['Pending Dues', reportData.totalPending || 0],
+        ['GST Liability', reportData.totalTax || 0],
+        ['Invoice Count', reportData.invoicesCount || 0],
+      ];
+      const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.join(',')).join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `sales_report_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    });
+
+    window.addEventListener('DOMContentLoaded', loadReports);
+  </script>
+</body>
+</html>

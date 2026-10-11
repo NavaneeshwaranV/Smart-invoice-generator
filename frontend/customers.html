@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customers | Smart Invoice Generator</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+  <div class="sidebar-backdrop"></div>
+  <div class="app-wrapper">
+    <aside class="app-sidebar">
+      <a href="/dashboard" class="sidebar-brand">
+        <div class="sidebar-brand-left">
+          <div class="sidebar-brand-icon">
+            <i class="bi bi-receipt-cutoff"></i>
+          </div>
+          <span class="sidebar-brand-title">Smart Invoice</span>
+        </div>
+      </a>
+      <nav class="sidebar-nav">
+        <a href="/dashboard" class="sidebar-link" data-page="dashboard"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></a>
+        <a href="/create-invoice" class="sidebar-link" data-page="create-invoice"><i class="bi bi-file-earmark-plus"></i><span>Create Invoice</span></a>
+        <a href="/invoices" class="sidebar-link" data-page="invoices"><i class="bi bi-receipt"></i><span>Invoices</span></a>
+        <a href="/customers" class="sidebar-link active" data-page="customers"><i class="bi bi-people"></i><span>Customers</span></a>
+        <a href="/products" class="sidebar-link" data-page="products"><i class="bi bi-box-seam"></i><span>Products & Stock</span></a>
+        <a href="/reports" class="sidebar-link" data-page="reports"><i class="bi bi-bar-chart-line"></i><span>Reports & GST</span></a>
+        <a href="/settings" class="sidebar-link" data-page="settings"><i class="bi bi-gear"></i><span>Business Settings</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; font-size: 14px;">RS</div>
+          <div class="overflow-hidden">
+            <div class="fw-semibold text-truncate" style="font-size: 0.88rem;">Rajesh Sharma</div>
+            <div class="text-muted text-truncate" style="font-size: 0.75rem;">Shop Admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="app-main">
+      <header class="app-topbar">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-outline-slate d-lg-none p-2" id="sidebarToggleBtn"><i class="bi bi-list fs-5"></i></button>
+          <div class="topbar-search-wrapper">
+            <i class="bi bi-search"></i>
+            <input type="text" class="topbar-search-input" id="custSearchInput" placeholder="Search customers by name, phone, email...">
+          </div>
+        </div>
+        <div>
+          <button class="btn btn-primary-blue shadow-sm" data-bs-toggle="modal" data-bs-target="#customerModal" id="btnOpenAddCustomer">
+            <i class="bi bi-person-plus"></i>
+            <span>Add Customer</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="app-content">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+          <div>
+            <h2 class="h4 fw-bold mb-1">Customer Directory</h2>
+            <p class="text-muted mb-0 small">Manage your client contacts, billing addresses, and GST numbers.</p>
+          </div>
+        </div>
+
+        <div class="surface-card p-3 p-md-4">
+          <div class="table-responsive">
+            <table class="table table-clean align-middle">
+              <thead>
+                <tr>
+                  <th>Customer Name</th>
+                  <th>Contact Information</th>
+                  <th>Billing Address</th>
+                  <th>GSTIN</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="customersTableBody">
+                <tr><td colspan="5" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div> Loading customer directory...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Customer Modal (Add & Edit) -->
+  <div class="modal fade" id="customerModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="customerForm">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold" id="customerModalTitle">Add Customer</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="editCustomerId">
+            <div class="mb-3">
+              <label class="form-label">Full Name / Company Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="formCustName" required>
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label">Phone Number</label>
+                <input type="text" class="form-control" id="formCustPhone" placeholder="+91 98450 XXXXX">
+              </div>
+              <div class="col-6">
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-control" id="formCustEmail" placeholder="billing@client.com">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Shop / Billing Address</label>
+              <textarea class="form-control" id="formCustAddress" rows="2"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">GSTIN (if registered business)</label>
+              <input type="text" class="form-control font-mono-num" id="formCustGstin" placeholder="29ABCDE1234F1Z5">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Customer Notes</label>
+              <input type="text" class="form-control" id="formCustNotes" placeholder="e.g. Regular wholesale buyer, credit terms...">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-slate" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary-blue">Save Customer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module">
+    import { api, initLayout, showToast } from '/js/app.js';
+
+    let customers = [];
+
+    const loadCustomers = async () => {
+      await initLayout('customers');
+      const search = document.getElementById('custSearchInput').value.trim();
+      try {
+        const res = await api(`/customers?search=${encodeURIComponent(search)}`);
+        if (!res.success) throw new Error('Failed to load customers');
+        customers = res.data || [];
+        renderTable();
+      } catch (err) {
+        showToast('Error loading customers: ' + err.message, 'danger');
+      }
+    };
+
+    const renderTable = () => {
+      const tbody = document.getElementById('customersTableBody');
+      if (customers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">No customers found. Click "Add Customer" to add one.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = customers.map(c => `
+        <tr>
+          <td>
+            <div class="fw-bold text-dark">${c.name}</div>
+            ${c.notes ? `<small class="text-muted">${c.notes}</small>` : ''}
+          </td>
+          <td>
+            <div><i class="bi bi-telephone text-muted me-1"></i> ${c.phone || '-'}</div>
+            <small class="text-muted"><i class="bi bi-envelope text-muted me-1"></i> ${c.email || '-'}</small>
+          </td>
+          <td><small class="text-secondary">${c.address || '-'}</small></td>
+          <td><span class="font-mono-num ${c.gstin ? 'text-primary fw-semibold' : 'text-muted'}">${c.gstin || 'Unregistered'}</span></td>
+          <td class="text-end">
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-slate btn-edit-cust" data-id="${c._id}" title="Edit"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-outline-slate text-danger btn-del-cust" data-id="${c._id}" title="Delete"><i class="bi bi-trash"></i></button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      document.querySelectorAll('.btn-edit-cust').forEach(btn => {
+        btn.addEventListener('click', () => openEditModal(btn.dataset.id));
+      });
+      document.querySelectorAll('.btn-del-cust').forEach(btn => {
+        btn.addEventListener('click', () => deleteCustomer(btn.dataset.id));
+      });
+    };
+
+    const openEditModal = (id) => {
+      const c = customers.find(item => item._id === id);
+      if (!c) return;
+      document.getElementById('editCustomerId').value = c._id;
+      document.getElementById('customerModalTitle').textContent = 'Edit Customer';
+      document.getElementById('formCustName').value = c.name || '';
+      document.getElementById('formCustPhone').value = c.phone || '';
+      document.getElementById('formCustEmail').value = c.email || '';
+      document.getElementById('formCustAddress').value = c.address || '';
+      document.getElementById('formCustGstin').value = c.gstin || '';
+      document.getElementById('formCustNotes').value = c.notes || '';
+      new bootstrap.Modal(document.getElementById('customerModal')).show();
+    };
+
+    document.getElementById('btnOpenAddCustomer').addEventListener('click', () => {
+      document.getElementById('customerForm').reset();
+      document.getElementById('editCustomerId').value = '';
+      document.getElementById('customerModalTitle').textContent = 'Add Customer';
+    });
+
+    document.getElementById('customerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editCustomerId').value;
+      const payload = {
+        name: document.getElementById('formCustName').value.trim(),
+        phone: document.getElementById('formCustPhone').value.trim(),
+        email: document.getElementById('formCustEmail').value.trim(),
+        address: document.getElementById('formCustAddress').value.trim(),
+        gstin: document.getElementById('formCustGstin').value.trim(),
+        notes: document.getElementById('formCustNotes').value.trim(),
+      };
+
+      try {
+        const res = await api(id ? `/customers/${id}` : '/customers', {
+          method: id ? 'PUT' : 'POST',
+          body: JSON.stringify(payload),
+        });
+
+        if (res.success) {
+          showToast(id ? 'Customer updated' : 'Customer added');
+          bootstrap.Modal.getInstance(document.getElementById('customerModal')).hide();
+          loadCustomers();
+        }
+      } catch (err) {
+        showToast('Operation failed: ' + err.message, 'danger');
+      }
+    });
+
+    const deleteCustomer = async (id) => {
+      if (!confirm('Are you sure you want to delete this customer?')) return;
+      try {
+        const res = await api(`/customers/${id}`, { method: 'DELETE' });
+        if (res.success) {
+          showToast('Customer deleted');
+          loadCustomers();
+        }
+      } catch (err) {
+        showToast('Delete failed: ' + err.message, 'danger');
+      }
+    };
+
+    document.getElementById('custSearchInput').addEventListener('input', () => {
+      clearTimeout(window.custSearchTimer);
+      window.custSearchTimer = setTimeout(loadCustomers, 350);
+    });
+
+    window.addEventListener('DOMContentLoaded', loadCustomers);
+  </script>
+</body>
+</html>
